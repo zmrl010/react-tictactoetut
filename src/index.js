@@ -15,14 +15,27 @@ function Square(props) {
 class Board extends React.Component {
     renderSquare(i) {
         return <Square
+            key={i}
             value={this.props.squares[i]}
             onClick={() => this.props.onClick(i)} />;
     }
 
     render() {
+        const rows = [];
+        const numRows = 3;
+        const numCols = 3;
+
+        for (let i = 0; i < numRows; ++i) {
+            const cols = [];
+            for (let j = 0; j < numCols; ++j) {
+                cols.push(this.renderSquare(j + (i * 3)))
+            }
+            rows.push(<div key={i} className="board-row">{cols}</div>)
+        }
         return (
             <div>
-                <div className="board-row">
+                {rows}
+                {/* <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
                     {this.renderSquare(2)}
@@ -36,7 +49,7 @@ class Board extends React.Component {
                     {this.renderSquare(6)}
                     {this.renderSquare(7)}
                     {this.renderSquare(8)}
-                </div>
+                </div> */}
             </div>
         );
     }
@@ -48,6 +61,7 @@ class Game extends React.Component {
         this.state = {
             history: [{
                 squares: Array(9).fill(null),
+                selectedIdx: null,
             }],
             stepNumber: 0,
             xIsNext: true,
@@ -64,6 +78,7 @@ class Game extends React.Component {
         this.setState({
             history: history.concat([{
                 squares: squares,
+                selectedIdx: i
             }]),
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
@@ -83,12 +98,16 @@ class Game extends React.Component {
         const winner = calculateWinner(current.squares);
 
         const moves = history.map((step, move) => {
-            const desc = move?
-            'Go to move #' + move :
-            'Go to game start';
+            const col = step.selectedIdx % 3; 
+            const row = Math.floor(step.selectedIdx / 3);
+            const desc = move ?
+            `Move #${move} - (${col}, ${row})` :
+            'Game Start';
             return (
                 <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                    <button onClick={() => this.jumpTo(move)}>
+                        {move === this.state.stepNumber ? <strong>{desc}</strong> : desc}
+                    </button>
                 </li>
             )
         })
@@ -108,6 +127,7 @@ class Game extends React.Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
+                    <div><h4>Go to: </h4></div>
                     <ol>{moves}</ol>
                 </div>
             </div>
