@@ -33,24 +33,7 @@ class Board extends React.Component {
             rows.push(<div key={i} className="board-row">{cols}</div>)
         }
         return (
-            <div>
-                {rows}
-                {/* <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div> */}
-            </div>
+            <div>{rows}</div>
         );
     }
 }
@@ -80,6 +63,7 @@ class Game extends React.Component {
                 squares: squares,
                 selectedIdx: i
             }]),
+            reversedHistory: false,
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
         })
@@ -98,6 +82,7 @@ class Game extends React.Component {
         const winner = calculateWinner(current.squares);
 
         const moves = history.map((step, move) => {
+            move = this.state.reversedHistory ? history.length - (move + 1) : move
             const col = step.selectedIdx % 3; 
             const row = Math.floor(step.selectedIdx / 3);
             const desc = move ?
@@ -127,7 +112,14 @@ class Game extends React.Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
-                    <div><h4>Go to: </h4></div>
+                    <div>
+                        <button 
+                            onClick={() => this.setState({
+                                    reversedHistory: !this.state.reversedHistory
+                                })}>
+                                Go to {this.state.reversedHistory ? '^' : 'v'}
+                        </button>
+                    </div>
                     <ol>{moves}</ol>
                 </div>
             </div>
