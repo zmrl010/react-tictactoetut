@@ -43,8 +43,7 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
-
-    LINES = [
+    lines = [
         [0, 1, 2],
         [3, 4, 5],
         [6, 7, 8],
@@ -69,8 +68,8 @@ class Game extends React.Component {
     }
 
     calculateWinner(squares) {
-        for (let i = 0; i < this.LINES.length; ++i) {
-            const [a, b, c] = this.LINES[i];
+        for (let i = 0; i < this.lines.length; ++i) {
+            const [a, b, c] = this.lines[i];
             if (squares[a] && squares[a] === squares[b]
                 && squares[a] === squares[c])
                 return [squares[a], i]
@@ -127,7 +126,7 @@ class Game extends React.Component {
         let winningLine
         if (winner) {
             status = 'Winner: ' + winner[0]
-            winningLine = this.LINES[winner[1]]
+            winningLine = this.lines[winner[1]]
         }
         else {
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O')
