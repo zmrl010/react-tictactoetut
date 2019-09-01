@@ -123,14 +123,14 @@ class Game extends React.Component {
         })
 
         let status
-        let winningLine
+        let winningLine = []
         if (winner) {
             status = 'Winner: ' + winner[0]
             winningLine = this.lines[winner[1]]
-        }
-        else {
+        } else if (current.squares.every(x => x)) {
+            status = 'Draw!'
+        } else {
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O')
-            winningLine = []
         }
         return (
             <div className="game">
