@@ -1,7 +1,25 @@
-import React from "react";
+import { Component } from "react";
 import Board from "./Board";
+import { SquareValue, PlayerSymbol } from "./types";
 
-export default class Game extends React.Component {
+interface Step {
+  squares: SquareValue[];
+  selectedIdx: number;
+  symbol: SquareValue;
+}
+
+interface GameProps {
+  firstMove: PlayerSymbol;
+}
+
+interface GameState {
+  history: Step[];
+  reversedHistory?: boolean;
+  stepNumber: number;
+  xIsNext: boolean;
+}
+
+export default class Game extends Component<GameProps, GameState> {
   lines = [
     [0, 1, 2],
     [3, 4, 5],
