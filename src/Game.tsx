@@ -1,7 +1,7 @@
 import { useReducer } from "react";
 import Board from "./Board";
 import { SquareValue, Mark } from "./types";
-import styles from "./Game.module.css";
+import styles from "./Game.module.scss";
 
 interface Turn {
   squares: SquareValue[];
@@ -108,21 +108,21 @@ export default function Game({ firstMove = "X" }: GameProps) {
     dispatch({ type: "JUMP_TO_TURN", payload: { turn } });
   };
 
-  const current = state.turns[state.currentTurn];
-  const winner = calculateWinner(current.squares);
-
-  const moves = state.turns.map(({ index = 0, squares }, move) => {
-    const desc = move
+  const turns = state.turns.map(({ index = 0, squares }, turn) => {
+    const desc = turn
       ? `${squares[index]} - (${index % 3}, ${Math.floor(index / 3)})`
       : "Game Start";
     return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>
-          {move === state.currentTurn ? <strong>{desc}</strong> : desc}
+      <li key={turn}>
+        <button onClick={() => jumpTo(turn)}>
+          {turn === state.currentTurn ? <strong>{desc}</strong> : desc}
         </button>
       </li>
     );
   });
+
+  const current = state.turns[state.currentTurn];
+  const winner = calculateWinner(current.squares);
 
   let status;
   let winningLine: number[] = [];
@@ -142,14 +142,10 @@ export default function Game({ firstMove = "X" }: GameProps) {
         winningLine={winningLine}
         onClick={handleClick}
       />
-      <div className={styles["game-info"]}>
+      <div className={styles.info}>
         <div>{status}</div>
-        <div>
-          <button onClick={() => dispatch({ type: "REVERSE_TURNS" })}>
-            History {state.reverseTurns ? <>&#11014;</> : <>&#11015;</>}
-          </button>
-        </div>
-        <ol>{state.reverseTurns ? moves.reverse() : moves}</ol>
+        <div>History</div>
+        <ul>{turns}</ul>
       </div>
     </div>
   );
