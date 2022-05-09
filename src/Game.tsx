@@ -132,7 +132,7 @@ export default function Game(props: GameProps) {
               }))
             }
           >
-            Go to {state.reversedHistory ? "^" : "v"}
+            History {state.reversedHistory ? <>&#11014;</> : <>&#11015;</>}
           </button>
         </div>
         <ol>{state.reversedHistory ? moves.reverse() : moves}</ol>

@@ -1,5 +1,6 @@
 import { SquareValue } from "./types";
 import styles from "./Square.module.css";
+import clsx from "clsx";
 
 interface SquareProps {
   isWinner: boolean;
@@ -8,11 +9,10 @@ interface SquareProps {
 }
 
 export default function Square({ isWinner, onClick, value }: SquareProps) {
+  const className = clsx(styles.square, { [styles.winner]: isWinner });
+
   return (
-    <button
-      className={styles.square + " " + (isWinner ? styles.winner : "")}
-      onClick={onClick}
-    >
+    <button className={className} onClick={onClick}>
       {value}
     </button>
   );
