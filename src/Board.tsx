@@ -8,31 +8,41 @@ function createSequence(n: number) {
   return Array.from(Array(n).keys());
 }
 
+const SEQ = createSequence(3);
+
 interface BoardProps {
   squares: SquareValue[];
   winningLine: number[];
   onClick: (squareIndex: number) => void;
 }
 
-const SEQ = createSequence(3);
+interface BoardRowProps extends BoardProps {
+  index: number;
+}
 
-export default function Board({ squares, winningLine, onClick }: BoardProps) {
+function BoardRow({ squares, winningLine, onClick, index }: BoardRowProps) {
   return (
-    <div className="game-board">
+    <div key={index}>
+      {SEQ.map((j) => {
+        const flatIndex = j + index * 3;
+        return (
+          <Square
+            key={j}
+            value={squares[flatIndex]}
+            isWinner={winningLine.includes(flatIndex)}
+            onClick={() => onClick(flatIndex)}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+export default function Board(props: BoardProps) {
+  return (
+    <div>
       {SEQ.map((i) => (
-        <div key={i} className="board-row">
-          {SEQ.map((j) => {
-            const flatIndex = j + i * 3;
-            return (
-              <Square
-                key={j}
-                value={squares[flatIndex]}
-                isWinner={winningLine.includes(flatIndex)}
-                onClick={() => onClick(flatIndex)}
-              />
-            );
-          })}
-        </div>
+        <BoardRow key={i} index={i} {...props} />
       ))}
     </div>
   );

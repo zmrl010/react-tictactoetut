@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Board from "./Board";
 import { SquareValue, PlayerSymbol } from "./types";
+import styles from "./Game.module.css";
 
 interface Step {
   squares: SquareValue[];
@@ -114,15 +115,13 @@ export default function Game(props: GameProps) {
   }
 
   return (
-    <div className="game">
-      <div className="game-board">
-        <Board
-          squares={current.squares}
-          winningLine={winningLine}
-          onClick={handleClick}
-        />
-      </div>
-      <div className="game-info">
+    <div className={styles.game}>
+      <Board
+        squares={current.squares}
+        winningLine={winningLine}
+        onClick={handleClick}
+      />
+      <div className={styles["game-info"]}>
         <div>{status}</div>
         <div>
           <button
