@@ -1,22 +1,22 @@
-import { useState } from "react";
+import { useReducer } from "react";
 import Board from "./Board";
-import { SquareValue, PlayerSymbol } from "./types";
+import { SquareValue, Mark } from "./types";
 import styles from "./Game.module.css";
 
-interface Step {
+interface Turn {
   squares: SquareValue[];
-  selectedIdx: number | null;
-  symbol: SquareValue;
+  index?: number;
 }
 
 interface GameProps {
-  firstMove: PlayerSymbol;
+  firstMove?: Mark;
 }
 
 interface GameState {
-  history: Step[];
-  reversedHistory?: boolean;
-  stepNumber: number;
+  turns: Turn[];
+  reverseTurns?: boolean;
+  currentTurn: number;
+  // currentMark: Mark;
   xIsNext: boolean;
 }
 
@@ -31,73 +31,94 @@ const lines = [
   [2, 4, 6],
 ];
 
-export default function Game(props: GameProps) {
-  const [state, setState] = useState<GameState>({
-    history: [
-      {
-        squares: Array(9).fill(null),
-        selectedIdx: null,
-        symbol: null,
-      },
-    ],
-    stepNumber: 0,
-    xIsNext: props.firstMove === "X",
-  });
+function calculateWinner(squares: string[]) {
+  const winningLine = lines.find(
+    ([a, b, c]) =>
+      squares[a] && squares[a] === squares[b] && squares[a] === squares[c]
+  );
 
-  const calculateWinner = (squares: SquareValue[]) => {
-    for (let i = 0; i < lines.length; ++i) {
-      const [a, b, c] = lines[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c])
-        return [squares[a], i] as const;
+  return winningLine ?? null;
+}
+
+type GameAction =
+  | {
+      type: "MARK_SQUARE";
+      payload: {
+        index: number;
+      };
     }
-    return null;
-  };
+  | {
+      type: "JUMP_TO_TURN";
+      payload: {
+        turn: number;
+      };
+    }
+  | {
+      type: "REVERSE_TURNS";
+    };
 
-  const handleClick = (i: number) => {
-    const history = state.history.slice(0, state.stepNumber + 1);
-    const current = history[history.length - 1];
-    const squares = current.squares.slice();
-    if (calculateWinner(squares) || squares[i]) return;
-    squares[i] = state.xIsNext ? "X" : "O";
-    setState((state) => {
+function gameReducer(state: GameState, action: GameAction): GameState {
+  switch (action.type) {
+    case "MARK_SQUARE":
+      const history = state.turns.slice(0, state.currentTurn + 1);
+      const current = history[history.length - 1];
+      const squares = current.squares.slice();
+
+      if (squares[action.payload.index] ?? calculateWinner(squares)) {
+        return state;
+      }
+
+      squares[action.payload.index] = state.xIsNext ? "X" : "O";
+
       return {
         ...state,
-        history: history.concat([
-          {
-            squares,
-            selectedIdx: i,
-            symbol: squares[i],
-          },
-        ]),
-        stepNumber: history.length,
+        turns: [...state.turns, { squares, index: action.payload.index }],
+        currentTurn: history.length,
         xIsNext: !state.xIsNext,
       };
-    });
+    case "JUMP_TO_TURN":
+      return {
+        ...state,
+        currentTurn: action.payload.turn,
+        xIsNext: action.payload.turn % 2 === 0,
+      };
+    case "REVERSE_TURNS":
+      return {
+        ...state,
+        reverseTurns: !state.reverseTurns,
+      };
+    default:
+      return state;
+  }
+}
+
+export default function Game({ firstMove = "X" }: GameProps) {
+  const [state, dispatch] = useReducer(gameReducer, {
+    turns: [{ squares: Array(9).fill("") }],
+    currentTurn: 0,
+    // currentMark: firstMove,
+    xIsNext: firstMove === "X",
+  });
+
+  const handleClick = (index: number) => {
+    dispatch({ type: "MARK_SQUARE", payload: { index } });
   };
 
-  const jumpTo = (step: number) => {
-    setState((state) => ({
-      ...state,
-      stepNumber: step,
-      xIsNext: step % 2 === 0,
-    }));
+  const jumpTo = (turn: number) => {
+    dispatch({ type: "JUMP_TO_TURN", payload: { turn } });
   };
 
-  const history = state.history;
-  const current = history[state.stepNumber];
+  const current = state.turns[state.currentTurn];
   const winner = calculateWinner(current.squares);
 
-  const moves = history.map((step, move) => {
-    const index = step.selectedIdx ?? 0;
-    const col = index % 3;
-    const row = Math.floor(index / 3);
+  const moves = state.turns.map(({ index = 0, squares }, move) => {
     const desc = move
-      ? `Move #${move} - ${step.symbol} - (${col}, ${row})`
+      ? `${squares[index]} - (${index % 3}, ${Math.floor(index / 3)})`
       : "Game Start";
     return (
       <li key={move}>
         <button onClick={() => jumpTo(move)}>
-          {move === state.stepNumber ? <strong>{desc}</strong> : desc}
+          {move === state.currentTurn ? <strong>{desc}</strong> : desc}
         </button>
       </li>
     );
@@ -108,7 +129,7 @@ export default function Game(props: GameProps) {
   if (winner) {
     status = "Winner: " + winner[0];
     winningLine = lines[winner[1]];
-  } else if (current.squares.every((x) => x)) {
+  } else if (current.squares.every(Boolean)) {
     status = "Draw!";
   } else {
     status = "Next player: " + (state.xIsNext ? "X" : "O");
@@ -124,18 +145,11 @@ export default function Game(props: GameProps) {
       <div className={styles["game-info"]}>
         <div>{status}</div>
         <div>
-          <button
-            onClick={() =>
-              setState((state) => ({
-                ...state,
-                reversedHistory: !state.reversedHistory,
-              }))
-            }
-          >
-            History {state.reversedHistory ? <>&#11014;</> : <>&#11015;</>}
+          <button onClick={() => dispatch({ type: "REVERSE_TURNS" })}>
+            History {state.reverseTurns ? <>&#11014;</> : <>&#11015;</>}
           </button>
         </div>
-        <ol>{state.reversedHistory ? moves.reverse() : moves}</ol>
+        <ol>{state.reverseTurns ? moves.reverse() : moves}</ol>
       </div>
     </div>
   );
