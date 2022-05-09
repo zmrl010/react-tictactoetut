@@ -1,7 +1,9 @@
+import { SquareValue } from "./types";
+
 interface SquareProps {
   isWinner: boolean;
   onClick: () => void;
-  value: string;
+  value: SquareValue;
 }
 
 export default function Square({ isWinner, onClick, value }: SquareProps) {

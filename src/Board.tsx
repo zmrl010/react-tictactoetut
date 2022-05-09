@@ -1,41 +1,39 @@
-import { Component } from "react";
 import Square from "./Square";
 import { SquareValue } from "./types";
 
-export interface BoardProps {
-  squares: SquareValue[];
-  winningLine: number[];
-  onClick: (i: number) => void;
+/**
+ * Create a numerical array from 0..n
+ */
+function createSequence(n: number) {
+  return Array.from(Array(n).keys());
 }
 
-export default class Board extends Component<BoardProps> {
-  renderSquare(i: number) {
-    return (
-      <Square
-        key={i}
-        value={this.props.squares[i]}
-        isWinner={this.props.winningLine.includes(i)}
-        onClick={() => this.props.onClick(i)}
-      />
-    );
-  }
+interface BoardProps {
+  squares: SquareValue[];
+  winningLine: number[];
+  onClick: (squareIndex: number) => void;
+}
 
-  render() {
-    const numRows = 3;
-    const numCols = 3;
+const SEQ = createSequence(3);
 
-    const rows = [];
-    for (let i = 0; i < numRows; ++i) {
-      const cols = [];
-      for (let j = 0; j < numCols; ++j) {
-        cols.push(this.renderSquare(j + i * numCols));
-      }
-      rows.push(
+export default function Board({ squares, winningLine, onClick }: BoardProps) {
+  return (
+    <div className="game-board">
+      {SEQ.map((i) => (
         <div key={i} className="board-row">
-          {cols}
+          {SEQ.map((j) => {
+            const flatIndex = j + i * 3;
+            return (
+              <Square
+                key={j}
+                value={squares[flatIndex]}
+                isWinner={winningLine.includes(flatIndex)}
+                onClick={() => onClick(flatIndex)}
+              />
+            );
+          })}
         </div>
-      );
-    }
-    return <div>{rows}</div>;
-  }
+      ))}
+    </div>
+  );
 }
