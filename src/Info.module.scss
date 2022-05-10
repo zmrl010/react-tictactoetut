@@ -1,22 +1,26 @@
+@use "./palette.scss";
+
 .info {
-  margin-left: 5px;
+  margin-left: 6px;
   text-align: center;
-  width: 20%;
+  width: 100%;
+
+  display: flex;
+  flex-flow: column;
+  & * {
+    background: palette.$tumbleweed;
+  }
 
   ul {
-    padding: 0 2px;
+    padding: 2px;
     margin: 0;
+    width: 100%;
+    flex: 1;
   }
 
   li {
     list-style: none;
     width: 100%;
-
-    background: #fff;
-
-    &:hover {
-      background: lightgrey;
-    }
 
     &.current {
       font-weight: bold;
@@ -24,11 +28,22 @@
 
     button {
       background: transparent;
+      transition: background 100ms ease-in-out;
       height: 100%;
       width: 100%;
       border: none;
       outline: none;
       padding: 5px;
+
+      &:hover {
+        background: palette.$terra-cotta;
+      }
     }
+  }
+
+  .status {
+    margin-top: 4px;
+    padding: 5px;
+    font-weight: 500;
   }
 }

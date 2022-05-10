@@ -27,11 +27,11 @@ export default function Info({
       break;
     case "PLAY":
       statusMessage = `Next Move: ${mark}`;
+      break;
   }
 
   return (
     <div className={styles.info}>
-      {statusMessage}
       <ul>
         {turns.map(({ index = 0, squares }, turn) => (
           <li key={turn} className={clsx({ current: turn === currentTurn })}>
@@ -43,6 +43,7 @@ export default function Info({
           </li>
         ))}
       </ul>
+      <div className={styles.status}>{statusMessage}</div>
     </div>
   );
 }

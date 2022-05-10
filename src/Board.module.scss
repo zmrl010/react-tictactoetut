@@ -5,13 +5,12 @@
   width: 300px;
   display: flex;
   flex-flow: row wrap;
-  background: #999;
   gap: 1px;
 
   .row {
     display: flex;
     gap: 1px;
-    flex: 1;
+    flex: 32%;
   }
 
   .square {

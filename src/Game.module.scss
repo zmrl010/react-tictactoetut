@@ -1,5 +1,16 @@
+@use "./palette.scss";
+
 .game {
   display: flex;
   flex-direction: row;
-  width: 100%;
+  width: 500px;
+  height: 310px;
+  padding: 4px;
+
+  background: palette.$terra-cotta;
+  color: palette.$gunmetal;
+
+  button {
+    color: palette.$gunmetal;
+  }
 }
