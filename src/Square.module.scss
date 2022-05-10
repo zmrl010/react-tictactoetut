@@ -1,3 +1,5 @@
+@use "./pallette.scss";
+
 .square {
   background: #fff;
   border: 1px solid #999;
@@ -11,12 +13,12 @@
   padding: 0;
   text-align: center;
   width: 100px;
-}
 
-.square:focus {
-  outline: none;
-}
+  &:focus {
+    outline: none;
+  }
 
-.winner {
-  color: green;
+  .winner {
+    color: green;
+  }
 }

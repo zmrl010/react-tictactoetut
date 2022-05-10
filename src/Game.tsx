@@ -1,23 +1,19 @@
 import { useReducer } from "react";
 import Board from "./Board";
-import { SquareValue, Mark } from "./types";
+import { Mark, Turn } from "./types";
 import styles from "./Game.module.scss";
-
-interface Turn {
-  squares: SquareValue[];
-  index?: number;
-}
+import Info from "./Info";
 
 interface GameProps {
   firstMove?: Mark;
 }
 
+type Status = "WON" | "DRAW" | "PLAY";
+
 interface GameState {
   turns: Turn[];
-  reverseTurns?: boolean;
   currentTurn: number;
-  // currentMark: Mark;
-  xIsNext: boolean;
+  currentMark: Mark;
 }
 
 const lines = [
@@ -32,12 +28,10 @@ const lines = [
 ];
 
 function calculateWinner(squares: string[]) {
-  const winningLine = lines.find(
+  return lines.find(
     ([a, b, c]) =>
       squares[a] && squares[a] === squares[b] && squares[a] === squares[c]
   );
-
-  return winningLine ?? null;
 }
 
 type GameAction =
@@ -52,9 +46,6 @@ type GameAction =
       payload: {
         turn: number;
       };
-    }
-  | {
-      type: "REVERSE_TURNS";
     };
 
 function gameReducer(state: GameState, action: GameAction): GameState {
@@ -64,28 +55,24 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       const current = history[history.length - 1];
       const squares = current.squares.slice();
 
-      if (squares[action.payload.index] ?? calculateWinner(squares)) {
+      if (squares[action.payload.index]) {
         return state;
       }
 
-      squares[action.payload.index] = state.xIsNext ? "X" : "O";
+      squares[action.payload.index] = state.currentMark;
 
       return {
         ...state,
         turns: [...state.turns, { squares, index: action.payload.index }],
         currentTurn: history.length,
-        xIsNext: !state.xIsNext,
+        currentMark: state.currentMark === "X" ? "O" : "X",
+        // xIsNext: !state.xIsNext,
       };
     case "JUMP_TO_TURN":
       return {
         ...state,
         currentTurn: action.payload.turn,
-        xIsNext: action.payload.turn % 2 === 0,
-      };
-    case "REVERSE_TURNS":
-      return {
-        ...state,
-        reverseTurns: !state.reverseTurns,
+        // xIsNext: action.payload.turn % 2 === 0,
       };
     default:
       return state;
@@ -96,44 +83,28 @@ export default function Game({ firstMove = "X" }: GameProps) {
   const [state, dispatch] = useReducer(gameReducer, {
     turns: [{ squares: Array(9).fill("") }],
     currentTurn: 0,
-    // currentMark: firstMove,
-    xIsNext: firstMove === "X",
+    currentMark: firstMove,
   });
 
+  const current = state.turns[state.currentTurn];
+  const winningLine = calculateWinner(current.squares);
+
+  let status: Status = "PLAY";
+  if (winningLine) {
+    status = "WON";
+  } else if (current.squares.every(Boolean)) {
+    status = "DRAW";
+  }
+
   const handleClick = (index: number) => {
-    dispatch({ type: "MARK_SQUARE", payload: { index } });
+    if (status === "PLAY") {
+      dispatch({ type: "MARK_SQUARE", payload: { index } });
+    }
   };
 
   const jumpTo = (turn: number) => {
     dispatch({ type: "JUMP_TO_TURN", payload: { turn } });
   };
-
-  const turns = state.turns.map(({ index = 0, squares }, turn) => {
-    const desc = turn
-      ? `${squares[index]} - (${index % 3}, ${Math.floor(index / 3)})`
-      : "Game Start";
-    return (
-      <li key={turn}>
-        <button onClick={() => jumpTo(turn)}>
-          {turn === state.currentTurn ? <strong>{desc}</strong> : desc}
-        </button>
-      </li>
-    );
-  });
-
-  const current = state.turns[state.currentTurn];
-  const winner = calculateWinner(current.squares);
-
-  let status;
-  let winningLine: number[] = [];
-  if (winner) {
-    status = "Winner: " + winner[0];
-    winningLine = lines[winner[1]];
-  } else if (current.squares.every(Boolean)) {
-    status = "Draw!";
-  } else {
-    status = "Next player: " + (state.xIsNext ? "X" : "O");
-  }
 
   return (
     <div className={styles.game}>
@@ -142,11 +113,13 @@ export default function Game({ firstMove = "X" }: GameProps) {
         winningLine={winningLine}
         onClick={handleClick}
       />
-      <div className={styles.info}>
-        <div>{status}</div>
-        <div>History</div>
-        <ul>{turns}</ul>
-      </div>
+      <Info
+        jumpTo={jumpTo}
+        status={status}
+        turns={state.turns}
+        currentTurn={state.currentTurn}
+        mark={state.currentMark}
+      />
     </div>
   );
 }

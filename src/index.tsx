@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import Game from "./Game";
 
-import "./global.css";
+import "./global.scss";
 
 const rootElement = document.getElementById("root");
 if (rootElement) {

@@ -12,7 +12,7 @@ const SEQ = createSequence(3);
 
 interface BoardProps {
   squares: SquareValue[];
-  winningLine: number[];
+  winningLine?: number[];
   onClick: (squareIndex: number) => void;
 }
 
@@ -29,7 +29,7 @@ function BoardRow({ squares, winningLine, onClick, index }: BoardRowProps) {
           <Square
             key={j}
             value={squares[flatIndex]}
-            isWinner={winningLine.includes(flatIndex)}
+            isWinner={winningLine?.includes(flatIndex)}
             onClick={() => onClick(flatIndex)}
           />
         );

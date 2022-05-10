@@ -1,9 +1,9 @@
 import { SquareValue } from "./types";
-import styles from "./Square.module.css";
+import styles from "./Square.module.scss";
 import clsx from "clsx";
 
 interface SquareProps {
-  isWinner: boolean;
+  isWinner?: boolean;
   onClick: () => void;
   value: SquareValue;
 }

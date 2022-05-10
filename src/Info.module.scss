@@ -1,0 +1,17 @@
+.root {
+  margin-left: 20px;
+
+  li {
+    list-style: none;
+    width: 100%;
+
+    &.current {
+      font-weight: bold;
+    }
+
+    button {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
