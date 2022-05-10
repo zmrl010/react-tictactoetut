@@ -1,7 +1,7 @@
 export type Mark = "X" | "O";
-export type SquareValue = Mark | "";
+export type SquareMark = Mark | "";
 
 export interface Turn {
-  squares: SquareValue[];
+  squares: SquareMark[];
   index?: number;
 }

@@ -66,13 +66,11 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         turns: [...state.turns, { squares, index: action.payload.index }],
         currentTurn: history.length,
         currentMark: state.currentMark === "X" ? "O" : "X",
-        // xIsNext: !state.xIsNext,
       };
     case "JUMP_TO_TURN":
       return {
         ...state,
         currentTurn: action.payload.turn,
-        // xIsNext: action.payload.turn % 2 === 0,
       };
     default:
       return state;

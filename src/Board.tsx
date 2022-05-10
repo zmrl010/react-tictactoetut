@@ -1,5 +1,6 @@
-import Square from "./Square";
-import { SquareValue } from "./types";
+import { SquareMark } from "./types";
+import styles from "./Board.module.scss";
+import clsx from "clsx";
 
 /**
  * Create a numerical array from 0..n
@@ -11,38 +12,30 @@ function createSequence(n: number) {
 const SEQ = createSequence(3);
 
 interface BoardProps {
-  squares: SquareValue[];
+  squares: SquareMark[];
   winningLine?: number[];
   onClick: (squareIndex: number) => void;
 }
 
-interface BoardRowProps extends BoardProps {
-  index: number;
-}
-
-function BoardRow({ squares, winningLine, onClick, index }: BoardRowProps) {
+export default function Board({ squares, winningLine, onClick }: BoardProps) {
   return (
-    <div key={index}>
-      {SEQ.map((j) => {
-        const flatIndex = j + index * 3;
-        return (
-          <Square
-            key={j}
-            value={squares[flatIndex]}
-            isWinner={winningLine?.includes(flatIndex)}
-            onClick={() => onClick(flatIndex)}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-export default function Board(props: BoardProps) {
-  return (
-    <div>
+    <div className={styles.board}>
       {SEQ.map((i) => (
-        <BoardRow key={i} index={i} {...props} />
+        <div key={i} className={styles.row}>
+          {SEQ.map((j) => {
+            const flatIndex = j + i * 3;
+            return (
+              <button
+                className={clsx(styles.square, {
+                  [styles.winner]: winningLine?.includes(flatIndex),
+                })}
+                onClick={() => onClick(flatIndex)}
+              >
+                {squares[flatIndex]}
+              </button>
+            );
+          })}
+        </div>
       ))}
     </div>
   );

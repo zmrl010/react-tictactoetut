@@ -1,17 +1,34 @@
-.root {
-  margin-left: 20px;
+.info {
+  margin-left: 5px;
+  text-align: center;
+  width: 20%;
+
+  ul {
+    padding: 0 2px;
+    margin: 0;
+  }
 
   li {
     list-style: none;
     width: 100%;
+
+    background: #fff;
+
+    &:hover {
+      background: lightgrey;
+    }
 
     &.current {
       font-weight: bold;
     }
 
     button {
+      background: transparent;
       height: 100%;
       width: 100%;
+      border: none;
+      outline: none;
+      padding: 5px;
     }
   }
 }

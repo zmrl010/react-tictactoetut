@@ -12,28 +12,26 @@ interface InfoProps {
 
 export default function Info({
   jumpTo,
-  status,
   turns,
   currentTurn,
+  status,
   mark,
 }: InfoProps) {
   let statusMessage: string;
   switch (status) {
     case "WON":
-      statusMessage = `Winner: ${mark}`;
+      statusMessage = `Winner: ${mark === "O" ? "X" : "O"}`;
       break;
     case "DRAW":
       statusMessage = "Draw!";
       break;
     case "PLAY":
-    default:
       statusMessage = `Next Move: ${mark}`;
   }
 
   return (
-    <div className={styles.root}>
-      <div>{statusMessage}</div>
-      <div>History</div>
+    <div className={styles.info}>
+      {statusMessage}
       <ul>
         {turns.map(({ index = 0, squares }, turn) => (
           <li key={turn} className={clsx({ current: turn === currentTurn })}>
