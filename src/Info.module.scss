@@ -7,36 +7,37 @@
 
   display: flex;
   flex-flow: column;
+
   & * {
     background: palette.$tumbleweed;
   }
 
-  ul {
+  .turns {
     padding: 2px;
     margin: 0;
     width: 100%;
     flex: 1;
-  }
 
-  li {
-    list-style: none;
-    width: 100%;
-
-    &.current {
-      font-weight: bold;
-    }
-
-    button {
-      background: transparent;
-      transition: background 100ms ease-in-out;
-      height: 100%;
+    li {
+      list-style: none;
       width: 100%;
-      border: none;
-      outline: none;
-      padding: 5px;
 
-      &:hover {
-        background: palette.$terra-cotta;
+      &.current {
+        font-weight: bold;
+      }
+
+      button {
+        background: transparent;
+        transition: background 100ms ease-in-out;
+        height: 100%;
+        width: 100%;
+        border: none;
+        outline: none;
+        padding: 5px;
+
+        &:hover {
+          background: palette.$terra-cotta;
+        }
       }
     }
   }

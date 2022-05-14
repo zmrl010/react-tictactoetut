@@ -5,3 +5,5 @@ export interface Turn {
   squares: SquareMark[];
   index?: number;
 }
+
+export type Status = "WON" | "DRAW" | "PLAY";

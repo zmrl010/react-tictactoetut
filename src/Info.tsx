@@ -1,48 +1,40 @@
 import clsx from "clsx";
 import styles from "./Info.module.scss";
-import { Mark, Turn } from "./types";
+import type { Turn } from "./types";
 
-interface InfoProps {
-  status: "WON" | "DRAW" | "PLAY";
+interface TurnListProps {
   jumpTo: (turn: number) => void;
   turns: Turn[];
   currentTurn: number;
-  mark: Mark;
 }
 
-export default function Info({
-  jumpTo,
-  turns,
-  currentTurn,
-  status,
-  mark,
-}: InfoProps) {
-  let statusMessage: string;
-  switch (status) {
-    case "WON":
-      statusMessage = `Winner: ${mark === "O" ? "X" : "O"}`;
-      break;
-    case "DRAW":
-      statusMessage = "Draw!";
-      break;
-    case "PLAY":
-      statusMessage = `Next Move: ${mark}`;
-      break;
-  }
+function TurnList({ jumpTo, turns, currentTurn }: TurnListProps) {
+  return (
+    <ul className={styles.turns}>
+      {turns.map(({ index = 0, squares }, turnIndex) => (
+        <li
+          key={turnIndex}
+          className={clsx({ current: turnIndex === currentTurn })}
+        >
+          <button onClick={() => jumpTo(turnIndex)}>
+            {turnIndex
+              ? `${squares[index]} - (${index % 3}, ${Math.floor(index / 3)})`
+              : "Game Start"}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
+interface InfoProps extends TurnListProps {
+  statusMessage: string;
+}
+
+export default function Info({ statusMessage, ...turnListProps }: InfoProps) {
   return (
     <div className={styles.info}>
-      <ul>
-        {turns.map(({ index = 0, squares }, turn) => (
-          <li key={turn} className={clsx({ current: turn === currentTurn })}>
-            <button onClick={() => jumpTo(turn)}>
-              {turn
-                ? `${squares[index]} - (${index % 3}, ${Math.floor(index / 3)})`
-                : "Game Start"}
-            </button>
-          </li>
-        ))}
-      </ul>
+      <TurnList {...turnListProps} />
       <div className={styles.status}>{statusMessage}</div>
     </div>
   );

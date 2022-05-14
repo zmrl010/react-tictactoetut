@@ -1,96 +1,56 @@
 import { useReducer } from "react";
 import Board from "./Board";
-import { Mark, Turn } from "./types";
 import styles from "./Game.module.scss";
+import gameReducer, { getInitState } from "./gameReducer";
 import Info from "./Info";
+import type { Mark, Status } from "./types";
 
-interface GameProps {
-  firstMove?: Mark;
+function getStatusMessage(status: Status, mark: "X" | "O") {
+  switch (status) {
+    case "WON":
+      return `Winner: ${mark === "O" ? "X" : "O"}`;
+    case "DRAW":
+      return "Draw!";
+    case "PLAY":
+      return `Next Move: ${mark}`;
+  }
 }
 
-type Status = "WON" | "DRAW" | "PLAY";
+function findWinningLine(squares: string[]) {
+  const lines = [
+    [0, 1, 2],
+    [0, 3, 6],
+    [0, 4, 8],
+    [1, 4, 7],
+    [2, 4, 6],
+    [2, 5, 8],
+    [3, 4, 5],
+    [6, 7, 8],
+  ];
 
-interface GameState {
-  turns: Turn[];
-  currentTurn: number;
-  currentMark: Mark;
-}
-
-const lines = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
-
-function calculateWinner(squares: string[]) {
   return lines.find(
     ([a, b, c]) =>
       squares[a] && squares[a] === squares[b] && squares[a] === squares[c]
   );
 }
 
-type GameAction =
-  | {
-      type: "MARK_SQUARE";
-      payload: {
-        index: number;
-      };
-    }
-  | {
-      type: "JUMP_TO_TURN";
-      payload: {
-        turn: number;
-      };
-    };
-
-function gameReducer(state: GameState, action: GameAction): GameState {
-  switch (action.type) {
-    case "MARK_SQUARE":
-      const history = state.turns.slice(0, state.currentTurn + 1);
-      const current = history[history.length - 1];
-      const squares = current.squares.slice();
-
-      if (squares[action.payload.index]) {
-        return state;
-      }
-
-      squares[action.payload.index] = state.currentMark;
-
-      return {
-        ...state,
-        turns: [...state.turns, { squares, index: action.payload.index }],
-        currentTurn: history.length,
-        currentMark: state.currentMark === "X" ? "O" : "X",
-      };
-    case "JUMP_TO_TURN":
-      return {
-        ...state,
-        currentTurn: action.payload.turn,
-      };
-    default:
-      return state;
-  }
+interface GameProps {
+  firstMove?: Mark;
 }
 
 export default function Game({ firstMove = "X" }: GameProps) {
-  const [state, dispatch] = useReducer(gameReducer, {
-    turns: [{ squares: Array(9).fill("") }],
-    currentTurn: 0,
-    currentMark: firstMove,
-  });
+  const [{ turns, currentTurnIndex, currentMark }, dispatch] = useReducer(
+    gameReducer,
+    getInitState(firstMove)
+  );
 
-  const current = state.turns[state.currentTurn];
-  const winningLine = calculateWinner(current.squares);
+  const { squares } = turns[currentTurnIndex];
+  const winningLine = findWinningLine(squares);
 
   let status: Status = "PLAY";
   if (winningLine) {
     status = "WON";
-  } else if (current.squares.every(Boolean)) {
+  } else if (squares.every(Boolean)) {
     status = "DRAW";
   }
 
@@ -101,22 +61,21 @@ export default function Game({ firstMove = "X" }: GameProps) {
   };
 
   const jumpTo = (turn: number) => {
-    dispatch({ type: "JUMP_TO_TURN", payload: { turn } });
+    dispatch({ type: "JUMP_TO_TURN", payload: { index: turn } });
   };
 
   return (
     <div className={styles.game}>
       <Board
-        squares={current.squares}
+        squares={squares}
         winningLine={winningLine}
         onClick={handleClick}
       />
       <Info
         jumpTo={jumpTo}
-        status={status}
-        turns={state.turns}
-        currentTurn={state.currentTurn}
-        mark={state.currentMark}
+        turns={turns}
+        currentTurn={currentTurnIndex}
+        statusMessage={getStatusMessage(status, currentMark)}
       />
     </div>
   );
